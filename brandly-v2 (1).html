@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRANDLY</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050505;
+  --s1: #0e0e0e;
+  --s2: #161616;
+  --s3: #1f1f1f;
+  --border: #262626;
+  --border2: #333;
+  --gold: #d4a853;
+  --gold2: #f0c97a;
+  --gold-dim: rgba(212,168,83,0.12);
+  --text: #f5f2ed;
+  --muted: #6b6b6b;
+  --muted2: #888;
+  --green: #4ecb8d;
+  --red: #e05c5c;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* GRAIN */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:9999;
+  opacity:0.6;
+}
+
+/* AMBIENT GLOW */
+.ambient {
+  position:fixed;
+  width:600px; height:600px;
+  border-radius:50%;
+  background: radial-gradient(circle, rgba(212,168,83,0.04) 0%, transparent 70%);
+  pointer-events:none;
+  top:-200px; right:-200px;
+  z-index:0;
+}
+
+/* ===== SCREENS ===== */
+.screen { display:none; min-height:100vh; position:relative; z-index:1; }
+.screen.active { display:flex; flex-direction:column; }
+
+/* ===== ONBOARDING ===== */
+#screen-onboard {
+  align-items:center;
+  justify-content:center;
+  padding: 40px 24px;
+}
+
+.onboard-wrap {
+  width:100%;
+  max-width:520px;
+}
+
+.brand-mark {
+  font-family:'Syne', sans-serif;
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:6px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:56px;
+  opacity:0;
+  animation: rise 0.6s 0.1s ease forwards;
+}
+
+.onboard-step {
+  display:none;
+  animation: rise 0.5s ease forwards;
+}
+.onboard-step.active { display:block; }
+
+.step-eyebrow {
+  font-size:11px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted2);
+  margin-bottom:16px;
+}
+
+.step-q {
+  font-family:'Instrument Serif', serif;
+  font-size:clamp(28px,5vw,42px);
+  line-height:1.2;
+  margin-bottom:8px;
+  color:var(--text);
+}
+
+.step-q em {
+  font-style:italic;
+  color:var(--gold);
+}
+
+.step-hint {
+  font-size:13px;
+  color:var(--muted2);
+  margin-bottom:32px;
+  line-height:1.6;
+}
+
+.big-input {
+  width:100%;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid var(--border2);
+  color:var(--text);
+  font-family:'DM Sans', sans-serif;
+  font-size:18px;
+  padding:16px 0;
+  outline:none;
+  transition:border-color 0.3s;
+}
+.big-input:focus { border-bottom-color:var(--gold); }
+.big-input::placeholder { color:var(--muted); }
+
+.big-textarea {
+  width:100%;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid var(--border2);
+  color:var(--text);
+  font-family:'DM Sans', sans-serif;
+  font-size:16px;
+  padding:16px 0;
+  outline:none;
+  resize:none;
+  min-height:80px;
+  transition:border-color 0.3s;
+  line-height:1.6;
+}
+.big-textarea:focus { border-bottom-color:var(--gold); }
+.big-textarea::placeholder { color:var(--muted); }
+
+/* OPTION PILLS */
+.option-pills {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:8px;
+}
+
+.pill {
+  background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:100px;
+  color:var(--muted2);
+  font-family:'DM Sans', sans-serif;
+  font-size:13px;
+  padding:10px 20px;
+  cursor:pointer;
+  transition:all 0.2s;
+  user-select:none;
+}
+.pill:hover { border-color:var(--gold); color:var(--gold); }
+.pill.selected {
+  background:var(--gold-dim);
+  border-color:var(--gold);
+  color:var(--gold);
+}
+
+.step-nav {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:40px;
+}
+
+.step-dots {
+  display:flex;
+  gap:6px;
+}
+.dot {
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--border2);
+  transition:all 0.3s;
+}
+.dot.active { background:var(--gold); width:20px; border-radius:3px; }
+.dot.done { background:var(--gold); opacity:0.4; }
+
+.btn-next {
+  background:var(--gold);
+  color:#050505;
+  border:none;
+  border-radius:100px;
+  font-family:'Syne', sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  padding:14px 28px;
+  cursor:pointer;
+  transition:all 0.25s;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.btn-next:hover { background:var(--gold2); transform:translateX(2px); }
+.btn-next:disabled { opacity:0.3; cursor:not-allowed; transform:none; }
+
+.btn-back {
+  background:none;
+  border:none;
+  color:var(--muted);
+  font-family:'DM Sans', sans-serif;
+  font-size:13px;
+  cursor:pointer;
+  padding:8px 0;
+  transition:color 0.2s;
+}
+.btn-back:hover { color:var(--text); }
+
+/* PROCESSING */
+#screen-processing {
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:24px;
+}
+
+.processing-icon {
+  width:64px; height:64px;
+  border:1px solid var(--border2);
+  border-top-color:var(--gold);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+.processing-title {
+  font-family:'Instrument Serif', serif;
+  font-size:28px;
+  color:var(--text);
+}
+
+.processing-sub {
+  font-size:13px;
+  color:var(--muted2);
+  max-width:300px;
+  line-height:1.7;
+}
+
+.processing-steps {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  text-align:left;
+  width:280px;
+}
+
+.p-step {
+  font-size:12px;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  transition:color 0.3s;
+}
+.p-step.active { color:var(--gold); }
+.p-step.done { color:var(--green); }
+
+.p-step-dot {
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--border2);
+  flex-shrink:0;
+  transition:background 0.3s;
+}
+.p-step.active .p-step-dot { background:var(--gold); }
+.p-step.done .p-step-dot { background:var(--green); }
+
+/* ===== MAIN APP ===== */
+#screen-app {
+  flex-direction:column;
+}
+
+/* TOP BAR */
+.topbar {
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(5,5,5,0.85);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  padding:0 32px;
+  height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.topbar-logo {
+  font-family:'Syne', sans-serif;
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:4px;
+  color:var(--gold);
+}
+
+.topbar-right {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.brand-pill {
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:100px;
+  padding:6px 14px;
+  font-size:12px;
+  color:var(--muted2);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.brand-pill span {
+  color:var(--gold);
+  font-weight:500;
+}
+
+.btn-reset {
+  background:none;
+  border:1px solid var(--border);
+  border-radius:100px;
+  color:var(--muted);
+  font-size:11px;
+  padding:6px 12px;
+  cursor:pointer;
+  font-family:'DM Sans', sans-serif;
+  transition:all 0.2s;
+}
+.btn-reset:hover { border-color:var(--red); color:var(--red); }
+
+/* APP BODY */
+.app-body {
+  flex:1;
+  max-width:680px;
+  width:100%;
+  margin:0 auto;
+  padding:48px 24px 120px;
+}
+
+/* GREETING */
+.greeting {
+  margin-bottom:48px;
+  animation: rise 0.5s ease both;
+}
+
+.greeting-time {
+  font-size:11px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:12px;
+}
+
+.greeting-title {
+  font-family:'Instrument Serif', serif;
+  font-size:clamp(32px,5vw,48px);
+  line-height:1.1;
+  margin-bottom:8px;
+}
+
+.greeting-title em { font-style:italic; color:var(--gold); }
+
+.greeting-sub {
+  font-size:14px;
+  color:var(--muted2);
+  line-height:1.6;
+}
+
+/* INPUT AREA */
+.input-area {
+  background:var(--s1);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  padding:24px;
+  margin-bottom:20px;
+  transition:border-color 0.3s;
+  animation: rise 0.5s 0.1s ease both;
+}
+
+.input-area:focus-within {
+  border-color:var(--gold);
+  box-shadow:0 0 0 4px rgba(212,168,83,0.06);
+}
+
+.input-label {
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted2);
+  margin-bottom:12px;
+}
+
+.topic-input {
+  width:100%;
+  background:transparent;
+  border:none;
+  color:var(--text);
+  font-family:'DM Sans', sans-serif;
+  font-size:17px;
+  outline:none;
+  resize:none;
+  min-height:60px;
+  line-height:1.6;
+}
+.topic-input::placeholder { color:var(--muted); }
+
+.input-footer {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:20px;
+  padding-top:16px;
+  border-top:1px solid var(--border);
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+/* PLATFORM SELECTOR */
+.platform-sel {
+  display:flex;
+  gap:6px;
+}
+
+.plat-btn {
+  background:var(--s3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  color:var(--muted2);
+  font-family:'DM Sans', sans-serif;
+  font-size:12px;
+  font-weight:500;
+  padding:7px 14px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.plat-btn:hover { border-color:var(--border2); color:var(--text); }
+.plat-btn.active {
+  background:var(--gold-dim);
+  border-color:var(--gold);
+  color:var(--gold);
+}
+
+.btn-generate {
+  background:var(--gold);
+  color:#050505;
+  border:none;
+  border-radius:10px;
+  font-family:'Syne', sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  padding:12px 24px;
+  cursor:pointer;
+  transition:all 0.25s;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+}
+.btn-generate:hover { background:var(--gold2); box-shadow:0 6px 20px rgba(212,168,83,0.25); }
+.btn-generate:disabled { opacity:0.4; cursor:not-allowed; box-shadow:none; }
+
+/* GENERATING STATE */
+.gen-state {
+  display:none;
+  flex-direction:column;
+  gap:0;
+  background:var(--s1);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  margin-bottom:20px;
+  overflow:hidden;
+  animation: rise 0.3s ease both;
+}
+.gen-state.visible { display:flex; }
+
+/* TIMER BAR */
+.gen-timer-bar {
+  height:3px;
+  background:var(--border);
+  position:relative;
+  overflow:hidden;
+}
+.gen-timer-fill {
+  height:100%;
+  background:linear-gradient(90deg, var(--gold), var(--gold2));
+  width:100%;
+  transform-origin:left;
+  transform:scaleX(1);
+  transition:transform linear;
+}
+
+/* TIMER HEADER */
+.gen-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 24px 14px;
+  border-bottom:1px solid var(--border);
+}
+
+.gen-left {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.gen-spinner {
+  width:16px; height:16px;
+  border:2px solid var(--border2);
+  border-top-color:var(--gold);
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+  flex-shrink:0;
+}
+
+.gen-label {
+  font-size:12px;
+  color:var(--muted2);
+}
+.gen-label strong { color:var(--gold); font-weight:500; }
+
+.gen-countdown {
+  font-family:'Syne', sans-serif;
+  font-size:22px;
+  font-weight:700;
+  color:var(--gold);
+  min-width:32px;
+  text-align:right;
+  line-height:1;
+}
+
+/* DNA REVEAL */
+.gen-dna {
+  padding:20px 24px;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+.dna-row {
+  display:flex;
+  gap:14px;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+  opacity:0;
+  transform:translateY(6px);
+  transition:opacity 0.4s ease, transform 0.4s ease;
+}
+.dna-row:last-child { border-bottom:none; }
+.dna-row.revealed { opacity:1; transform:translateY(0); }
+
+.dna-icon {
+  font-size:16px;
+  flex-shrink:0;
+  margin-top:1px;
+}
+
+.dna-content {}
+
+.dna-label {
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:4px;
+  font-weight:600;
+}
+
+.dna-value {
+  font-size:13px;
+  color:#bbb;
+  line-height:1.5;
+}
+
+.dna-pills {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:4px;
+}
+
+.dna-pill {
+  font-size:11px;
+  background:var(--s3);
+  border:1px solid var(--border2);
+  border-radius:6px;
+  color:var(--muted2);
+  padding:3px 10px;
+}
+
+/* PHASE TEXT */
+.gen-phase {
+  padding:12px 24px 16px;
+  border-top:1px solid var(--border);
+  font-size:12px;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.gen-phase-dot {
+  width:5px; height:5px;
+  border-radius:50%;
+  background:var(--gold);
+  animation: pulse-dot 1s ease infinite;
+}
+@keyframes pulse-dot {
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:0.4; transform:scale(0.7); }
+}
+
+/* RESULT CARD */
+.result-card {
+  background:var(--s1);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  overflow:hidden;
+  margin-bottom:16px;
+  animation: rise 0.5s ease both;
+  display:none;
+}
+.result-card.visible { display:block; }
+
+.result-header {
+  padding:20px 24px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.result-platform {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.plat-badge {
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  background:var(--gold-dim);
+  color:var(--gold);
+  padding:4px 10px;
+  border-radius:6px;
+}
+
+.result-time {
+  font-size:11px;
+  color:var(--muted);
+}
+
+.result-body { padding:24px; }
+
+/* HOOK SECTION */
+.hook-section {
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px 20px;
+  margin-bottom:16px;
+  position:relative;
+}
+
+.hook-label {
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:8px;
+  font-weight:600;
+}
+
+.hook-text {
+  font-family:'Instrument Serif', serif;
+  font-size:20px;
+  line-height:1.4;
+  color:var(--text);
+}
+
+/* CONTENT SECTION */
+.content-section {
+  margin-bottom:16px;
+}
+
+.section-label {
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted2);
+  margin-bottom:8px;
+}
+
+.content-text {
+  font-size:14px;
+  line-height:1.8;
+  color:#ccc;
+  white-space:pre-wrap;
+}
+
+/* HASHTAGS */
+.hashtag-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:16px;
+}
+
+.hashtag {
+  font-size:12px;
+  color:var(--gold);
+  background:var(--gold-dim);
+  padding:4px 10px;
+  border-radius:6px;
+  opacity:0.8;
+}
+
+/* WHY IT WORKS */
+.why-section {
+  background:linear-gradient(135deg, rgba(212,168,83,0.06), rgba(212,168,83,0.02));
+  border:1px solid rgba(212,168,83,0.15);
+  border-radius:12px;
+  padding:16px 20px;
+  margin-bottom:20px;
+}
+
+.why-label {
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.why-label::before {
+  content:'✦';
+  font-size:8px;
+}
+
+.why-items {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.why-item {
+  font-size:12px;
+  color:var(--muted2);
+  line-height:1.5;
+  display:flex;
+  gap:8px;
+}
+
+.why-item::before {
+  content:'→';
+  color:var(--gold);
+  opacity:0.6;
+  flex-shrink:0;
+}
+
+/* POST TIME */
+.post-time-bar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 20px;
+  background:var(--s2);
+  border-top:1px solid var(--border);
+}
+
+.post-time-label {
+  font-size:11px;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.post-time-value {
+  font-size:13px;
+  color:var(--gold);
+  font-weight:500;
+}
+
+/* ACTION ROW */
+.action-row {
+  display:flex;
+  gap:8px;
+  padding:16px 24px;
+  border-top:1px solid var(--border);
+}
+
+.btn-copy {
+  flex:1;
+  background:var(--gold);
+  color:#050505;
+  border:none;
+  border-radius:10px;
+  font-family:'Syne', sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  padding:12px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-copy:hover { background:var(--gold2); }
+.btn-copy.copied { background:var(--green); color:#fff; }
+
+.btn-regen {
+  background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  color:var(--muted2);
+  font-size:12px;
+  padding:12px 16px;
+  cursor:pointer;
+  transition:all 0.2s;
+  white-space:nowrap;
+  font-family:'DM Sans', sans-serif;
+}
+.btn-regen:hover { border-color:var(--gold); color:var(--gold); }
+
+/* HISTORY */
+.history-section {
+  margin-top:48px;
+  animation: rise 0.5s 0.2s ease both;
+}
+
+.history-label {
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:16px;
+}
+
+.history-item {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 16px;
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+
+.history-item:hover { border-color:var(--border2); background:var(--s2); }
+
+.h-topic {
+  font-size:13px;
+  color:var(--text);
+  margin-bottom:2px;
+}
+
+.h-meta {
+  font-size:11px;
+  color:var(--muted);
+}
+
+.h-plat {
+  font-size:10px;
+  color:var(--gold);
+  background:var(--gold-dim);
+  padding:3px 8px;
+  border-radius:5px;
+}
+
+/* ANIMATIONS */
+@keyframes rise {
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+@keyframes spin {
+  to { transform:rotate(360deg); }
+}
+
+/* TOAST */
+.toast {
+  position:fixed;
+  bottom:28px;
+  left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--s2);
+  border:1px solid var(--gold);
+  border-radius:100px;
+  padding:12px 24px;
+  font-size:13px;
+  color:var(--gold);
+  z-index:9998;
+  transition:transform 0.3s, opacity 0.3s;
+  opacity:0;
+  white-space:nowrap;
+}
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+@media (max-width:560px) {
+  .topbar { padding:0 16px; }
+  .app-body { padding:32px 16px 100px; }
+  .platform-sel { flex-wrap:wrap; }
+  .action-row { flex-direction:column; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<!-- ===== ONBOARDING ===== -->
+<div id="screen-onboard" class="screen active">
+  <div class="onboard-wrap">
+    <div class="brand-mark">Brandly</div>
+
+    <!-- Step 1: Brand Name -->
+    <div class="onboard-step active" id="step-1">
+      <div class="step-eyebrow">Langkah 1 dari 5</div>
+      <div class="step-q">Nama brand atau<br><em>akun kamu apa?</em></div>
+      <div class="step-hint">Bisa nama bisnis, nama kamu, atau nama akun sosmed.</div>
+      <input class="big-input" id="ob-name" placeholder="cth: Grades Official, Luna, @namaakun" autocomplete="off" />
+      <div class="step-nav">
+        <div class="step-dots">
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <button class="btn-next" onclick="nextStep(1)">Lanjut →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: What you sell/talk about -->
+    <div class="onboard-step" id="step-2">
+      <div class="step-eyebrow">Langkah 2 dari 5</div>
+      <div class="step-q">Kamu jual atau<br><em>bahas apa?</em></div>
+      <div class="step-hint">Jelaskan produk, layanan, atau topik utama akun kamu. Makin detail makin bagus.</div>
+      <textarea class="big-textarea" id="ob-product" placeholder="cth: Abaya premium material Azara Lux, cocok untuk wanita muslimah yang stylish dan aktif"></textarea>
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(2)">← Kembali</button>
+        <div class="step-dots">
+          <div class="dot done"></div>
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <button class="btn-next" onclick="nextStep(2)">Lanjut →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Target audience -->
+    <div class="onboard-step" id="step-3">
+      <div class="step-eyebrow">Langkah 3 dari 5</div>
+      <div class="step-q">Siapa yang kamu<br><em>tuju?</em></div>
+      <div class="step-hint">Siapa orang yang paling cocok lihat konten kamu?</div>
+      <textarea class="big-textarea" id="ob-audience" placeholder="cth: Wanita muslimah 22-35 tahun, ibu muda dan profesional, suka fashion tapi tetap syar'i"></textarea>
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(3)">← Kembali</button>
+        <div class="step-dots">
+          <div class="dot done"></div>
+          <div class="dot done"></div>
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <button class="btn-next" onclick="nextStep(3)">Lanjut →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Tone -->
+    <div class="onboard-step" id="step-4">
+      <div class="step-eyebrow">Langkah 4 dari 5</div>
+      <div class="step-q">Vibes konten<br><em>kamu gimana?</em></div>
+      <div class="step-hint">Pilih satu atau dua yang paling cocok.</div>
+      <div class="option-pills" id="tone-pills">
+        <div class="pill" onclick="togglePill(this,'tone')">Elegan & Berkelas</div>
+        <div class="pill" onclick="togglePill(this,'tone')">Hangat & Personal</div>
+        <div class="pill" onclick="togglePill(this,'tone')">Inspiratif & Motivasi</div>
+        <div class="pill" onclick="togglePill(this,'tone')">Santai & Friendly</div>
+        <div class="pill" onclick="togglePill(this,'tone')">Bold & Percaya Diri</div>
+        <div class="pill" onclick="togglePill(this,'tone')">Edukatif & Informatif</div>
+        <div class="pill" onclick="togglePill(this,'tone')">Storytelling & Emosional</div>
+        <div class="pill" onclick="togglePill(this,'tone')">Minimalis & Premium</div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(4)">← Kembali</button>
+        <div class="step-dots">
+          <div class="dot done"></div>
+          <div class="dot done"></div>
+          <div class="dot done"></div>
+          <div class="dot active"></div>
+          <div class="dot"></div>
+        </div>
+        <button class="btn-next" onclick="nextStep(4)">Lanjut →</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Platform -->
+    <div class="onboard-step" id="step-5">
+      <div class="step-eyebrow">Langkah 5 dari 5</div>
+      <div class="step-q">Main di platform<br><em>mana?</em></div>
+      <div class="step-hint">Pilih semua yang kamu pakai.</div>
+      <div class="option-pills" id="platform-pills">
+        <div class="pill" onclick="togglePill(this,'platform')">Instagram</div>
+        <div class="pill" onclick="togglePill(this,'platform')">TikTok</div>
+        <div class="pill" onclick="togglePill(this,'platform')">Twitter / X</div>
+        <div class="pill" onclick="togglePill(this,'platform')">Facebook</div>
+        <div class="pill" onclick="togglePill(this,'platform')">YouTube Shorts</div>
+        <div class="pill" onclick="togglePill(this,'platform')">LinkedIn</div>
+      </div>
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(5)">← Kembali</button>
+        <div class="step-dots">
+          <div class="dot done"></div>
+          <div class="dot done"></div>
+          <div class="dot done"></div>
+          <div class="dot done"></div>
+          <div class="dot active"></div>
+        </div>
+        <button class="btn-next" onclick="finishOnboarding()">Bangun Brand DNA ✦</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== PROCESSING ===== -->
+<div id="screen-processing" class="screen">
+  <div class="processing-icon"></div>
+  <div class="processing-title">Membangun Brand DNA</div>
+  <div class="processing-sub">AI sedang mempelajari brand kamu secara mendalam...</div>
+  <div class="processing-steps">
+    <div class="p-step active" id="ps-1"><div class="p-step-dot"></div>Menganalisis brand & produk</div>
+    <div class="p-step" id="ps-2"><div class="p-step-dot"></div>Membangun persona audiens</div>
+    <div class="p-step" id="ps-3"><div class="p-step-dot"></div>Menyusun content pillars</div>
+    <div class="p-step" id="ps-4"><div class="p-step-dot"></div>Kalibrasi tone of voice</div>
+    <div class="p-step" id="ps-5"><div class="p-step-dot"></div>Menyiapkan viral framework</div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="screen-app" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">BRANDLY</div>
+    <div class="topbar-right">
+      <div class="brand-pill">Brand: <span id="topbar-brand-name">—</span></div>
+      <button class="btn-reset" onclick="confirmReset()">Ganti Brand</button>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <!-- Greeting -->
+    <div class="greeting">
+      <div class="greeting-time" id="greeting-time">Selamat pagi</div>
+      <div class="greeting-title">Mau posting<br>tentang <em>apa hari ini?</em></div>
+      <div class="greeting-sub" id="greeting-sub">Ketik topik atau produk, pilih platform, dan biarkan AI yang urus sisanya.</div>
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <div class="input-label">Topik hari ini</div>
+      <textarea class="topic-input" id="topic-input" placeholder="cth: launching warna baru, tips mix & match, promo akhir bulan..." rows="3"></textarea>
+      <div class="input-footer">
+        <div class="platform-sel" id="platform-sel"></div>
+        <button class="btn-generate" id="btn-gen" onclick="generateContent()">
+          <span>✦</span> Generate
+        </button>
+      </div>
+    </div>
+
+    <!-- Generating state -->
+    <div class="gen-state" id="gen-state">
+      <div class="gen-timer-bar">
+        <div class="gen-timer-fill" id="gen-timer-fill"></div>
+      </div>
+      <div class="gen-header">
+        <div class="gen-left">
+          <div class="gen-spinner"></div>
+          <div class="gen-label" id="gen-text">AI sedang <strong>merekayasa konten</strong> kamu...</div>
+        </div>
+        <div class="gen-countdown" id="gen-countdown">15</div>
+      </div>
+      <div class="gen-dna" id="gen-dna"></div>
+      <div class="gen-phase">
+        <div class="gen-phase-dot"></div>
+        <span id="gen-phase-text">Membaca Brand DNA kamu...</span>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-card" id="result-card">
+      <div class="result-header">
+        <div class="result-platform">
+          <div class="plat-badge" id="result-plat">IG</div>
+        </div>
+        <div class="result-time" id="result-time-label"></div>
+      </div>
+      <div class="result-body">
+        <div class="hook-section">
+          <div class="hook-label">Hook — 3 detik pertama</div>
+          <div class="hook-text" id="result-hook"></div>
+        </div>
+        <div class="content-section">
+          <div class="section-label">Body Konten</div>
+          <div class="content-text" id="result-body-text"></div>
+        </div>
+        <div class="hashtag-row" id="result-hashtags"></div>
+        <div class="why-section">
+          <div class="why-label">Kenapa ini bakal work</div>
+          <div class="why-items" id="result-why"></div>
+        </div>
+      </div>
+      <div class="post-time-bar">
+        <div class="post-time-label">⏰ Jam terbaik posting</div>
+        <div class="post-time-value" id="result-post-time">—</div>
+      </div>
+      <div class="action-row">
+        <button class="btn-copy" id="btn-copy" onclick="copyContent()">Copy Konten</button>
+        <button class="btn-regen" onclick="generateContent()">↺ Buat Ulang</button>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="history-section" id="history-section" style="display:none">
+      <div class="history-label">Konten sebelumnya</div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ STATE ============
+let brandDNA = null;
+let currentResult = null;
+let selectedTones = [];
+let selectedPlatforms = [];
+let activePlatform = '';
+let history = [];
+
+const STORAGE_KEY = 'brandly-dna';
+const HISTORY_KEY = 'brandly-history';
+
+// ============ INIT ============
+async function init() {
+  try {
+    const stored = await window.storage.get(STORAGE_KEY);
+    if (stored && stored.value) {
+      brandDNA = JSON.parse(stored.value);
+      loadHistory();
+      showApp();
+      return;
+    }
+  } catch(e) {}
+  showScreen('onboard');
+}
+
+async function loadHistory() {
+  try {
+    const stored = await window.storage.get(HISTORY_KEY);
+    if (stored && stored.value) {
+      history = JSON.parse(stored.value);
+      renderHistory();
+    }
+  } catch(e) {}
+}
+
+// ============ SCREENS ============
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function showApp() {
+  showScreen('app');
+  document.getElementById('topbar-brand-name').textContent = brandDNA.name;
+
+  // Greeting by time
+  const h = new Date().getHours();
+  const greet = h < 11 ? 'Selamat pagi' : h < 15 ? 'Selamat siang' : h < 18 ? 'Selamat sore' : 'Selamat malam';
+  document.getElementById('greeting-time').textContent = greet;
+
+  // Build platform buttons from DNA
+  const platSel = document.getElementById('platform-sel');
+  platSel.innerHTML = '';
+  const platforms = brandDNA.platforms || ['Instagram'];
+  platforms.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'plat-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = p.split(' ')[0]; // short name
+    btn.onclick = () => {
+      document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activePlatform = p;
+    };
+    platSel.appendChild(btn);
+    if (i === 0) activePlatform = p;
+  });
+}
+
+// ============ ONBOARDING STEPS ============
+let currentStep = 1;
+
+function nextStep(step) {
+  // Validate
+  if (step === 1 && !document.getElementById('ob-name').value.trim()) {
+    showToast('Isi nama brand dulu ya!'); return;
+  }
+  if (step === 2 && !document.getElementById('ob-product').value.trim()) {
+    showToast('Ceritain produk/topik kamu dulu!'); return;
+  }
+  if (step === 3 && !document.getElementById('ob-audience').value.trim()) {
+    showToast('Siapa target audiens kamu?'); return;
+  }
+
+  document.getElementById('step-' + step).classList.remove('active');
+  document.getElementById('step-' + (step + 1)).classList.add('active');
+  currentStep = step + 1;
+}
+
+function prevStep(step) {
+  document.getElementById('step-' + step).classList.remove('active');
+  document.getElementById('step-' + (step - 1)).classList.add('active');
+  currentStep = step - 1;
+}
+
+function togglePill(el, group) {
+  if (group === 'tone') {
+    el.classList.toggle('selected');
+    selectedTones = Array.from(document.querySelectorAll('#tone-pills .pill.selected')).map(p => p.textContent);
+  } else {
+    el.classList.toggle('selected');
+    selectedPlatforms = Array.from(document.querySelectorAll('#platform-pills .pill.selected')).map(p => p.textContent);
+  }
+}
+
+async function finishOnboarding() {
+  const name = document.getElementById('ob-name').value.trim();
+  const product = document.getElementById('ob-product').value.trim();
+  const audience = document.getElementById('ob-audience').value.trim();
+  const tones = selectedTones.length ? selectedTones.join(', ') : 'Friendly & Natural';
+  const platforms = selectedPlatforms.length ? selectedPlatforms : ['Instagram'];
+
+  showScreen('processing');
+  await animateProcessing();
+
+  // Build DNA via AI
+  const prompt = `Kamu adalah brand strategist & viral content expert kelas dunia. Bangun Brand DNA yang komprehensif untuk:
+- Nama: ${name}
+- Produk/Topik: ${product}
+- Target Audiens: ${audience}
+- Tone: ${tones}
+- Platform: ${platforms.join(', ')}
+
+Return HANYA JSON valid, tidak ada teks lain:
+{
+  "name": "${name}",
+  "platforms": ${JSON.stringify(platforms)},
+  "tone": "${tones}",
+  "brand_voice": "deskripsi voice brand dalam 2-3 kalimat",
+  "persona": "deskripsi target audiens detail",
+  "product_core": "inti produk/layanan dalam 1-2 kalimat",
+  "content_pillars": ["Pilar 1", "Pilar 2", "Pilar 3", "Pilar 4"],
+  "viral_triggers": ["trigger psikologis 1", "trigger psikologis 2", "trigger psikologis 3"],
+  "signature_phrases": ["frasa khas brand 1", "frasa khas brand 2"],
+  "avoid": ["hal yang tidak sesuai brand 1", "hal yang tidak sesuai brand 2"],
+  "hashtag_base": ["#hashtag1", "#hashtag2", "#hashtag3", "#hashtag4", "#hashtag5"]
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content.map(i => i.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    brandDNA = JSON.parse(clean);
+
+    await window.storage.set(STORAGE_KEY, JSON.stringify(brandDNA));
+    showApp();
+  } catch(e) {
+    // Fallback DNA
+    brandDNA = { name, platforms, tone: tones, brand_voice: tones, persona: audience, product_core: product, content_pillars: ['Produk', 'Tips', 'Promo', 'Personal'], viral_triggers: ['FOMO', 'Relatable', 'Inspirasi'], signature_phrases: [], avoid: [], hashtag_base: [] };
+    await window.storage.set(STORAGE_KEY, JSON.stringify(brandDNA));
+    showApp();
+  }
+}
+
+async function animateProcessing() {
+  const steps = ['ps-1','ps-2','ps-3','ps-4','ps-5'];
+  for (let i = 0; i < steps.length; i++) {
+    if (i > 0) {
+      document.getElementById(steps[i-1]).classList.remove('active');
+      document.getElementById(steps[i-1]).classList.add('done');
+    }
+    document.getElementById(steps[i]).classList.add('active');
+    await sleep(600);
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ============ LOADING REVEAL ============
+let countdownInterval = null;
+
+function startLoadingReveal() {
+  const dna = brandDNA;
+  const dnaContainer = document.getElementById('gen-dna');
+
+  // Build DNA rows to reveal
+  const rows = [
+    {
+      icon: '🎯',
+      label: 'Target Persona',
+      type: 'text',
+      value: dna.persona || '—'
+    },
+    {
+      icon: '🏛',
+      label: 'Content Pillars',
+      type: 'pills',
+      values: dna.content_pillars || []
+    },
+    {
+      icon: '⚡',
+      label: 'Viral Triggers',
+      type: 'pills',
+      values: dna.viral_triggers || []
+    },
+    {
+      icon: '🎤',
+      label: 'Brand Voice',
+      type: 'text',
+      value: dna.brand_voice || '—'
+    },
+    {
+      icon: '#',
+      label: 'Base Hashtags',
+      type: 'pills',
+      values: dna.hashtag_base || []
+    }
+  ];
+
+  dnaContainer.innerHTML = rows.map((r, i) => `
+    <div class="dna-row" id="dna-row-${i}">
+      <div class="dna-icon">${r.icon}</div>
+      <div class="dna-content">
+        <div class="dna-label">${r.label}</div>
+        ${r.type === 'text'
+          ? `<div class="dna-value">${r.value}</div>`
+          : `<div class="dna-pills">${(r.values||[]).map(v=>`<span class="dna-pill">${v}</span>`).join('')}</div>`
+        }
+      </div>
+    </div>
+  `).join('');
+
+  // Reveal rows one by one
+  rows.forEach((_, i) => {
+    setTimeout(() => {
+      const el = document.getElementById(`dna-row-${i}`);
+      if (el) el.classList.add('revealed');
+    }, 800 + i * 1800);
+  });
+
+  // Phase texts
+  const phases = [
+    'Membaca Brand DNA kamu...',
+    'Menganalisis persona & audiens...',
+    'Memilih content pillar yang relevan...',
+    'Merekayasa hook stop-scroll...',
+    'Mengoptimasi untuk algoritma...',
+    'Menyesuaikan tone of voice...',
+    'Hampir selesai...'
+  ];
+  let pi = 0;
+  const phaseInterval = setInterval(() => {
+    pi = Math.min(pi + 1, phases.length - 1);
+    const el = document.getElementById('gen-phase-text');
+    if (el) el.textContent = phases[pi];
+  }, 2000);
+
+  // Countdown timer 15 → 0
+  let timeLeft = 15;
+  document.getElementById('gen-countdown').textContent = timeLeft;
+  const fill = document.getElementById('gen-timer-fill');
+  fill.style.transition = 'none';
+  fill.style.transform = 'scaleX(1)';
+
+  setTimeout(() => {
+    fill.style.transition = `transform ${timeLeft}s linear`;
+    fill.style.transform = 'scaleX(0)';
+  }, 50);
+
+  countdownInterval = setInterval(() => {
+    timeLeft--;
+    const el = document.getElementById('gen-countdown');
+    if (el) el.textContent = Math.max(0, timeLeft);
+    if (timeLeft <= 0) clearInterval(countdownInterval);
+  }, 1000);
+
+  return phaseInterval;
+}
+
+// ============ GENERATE CONTENT ============
+async function generateContent() {
+  const topic = document.getElementById('topic-input').value.trim();
+  if (!topic) { showToast('Topik dulu dong!'); return; }
+
+  const platform = activePlatform || (brandDNA.platforms && brandDNA.platforms[0]) || 'Instagram';
+
+  document.getElementById('btn-gen').disabled = true;
+  document.getElementById('gen-state').classList.add('visible');
+  document.getElementById('result-card').classList.remove('visible');
+
+  const phaseInterval = startLoadingReveal();
+
+  const isShortForm = platform === 'TikTok' || platform === 'YouTube Shorts';
+  const isLinkedIn = platform === 'LinkedIn';
+
+  const prompt = `Kamu adalah viral content strategist yang ahli dalam algoritma ${platform}.
+
+BRAND DNA:
+- Brand: ${brandDNA.name}
+- Produk/Layanan: ${brandDNA.product_core}
+- Target Audiens: ${brandDNA.persona}
+- Brand Voice: ${brandDNA.brand_voice}
+- Content Pillars: ${(brandDNA.content_pillars || []).join(', ')}
+- Viral Triggers yang cocok untuk brand ini: ${(brandDNA.viral_triggers || []).join(', ')}
+- Frasa khas brand: ${(brandDNA.signature_phrases || []).join(', ')}
+- Hindari: ${(brandDNA.avoid || []).join(', ')}
+- Base Hashtags: ${(brandDNA.hashtag_base || []).join(' ')}
+
+TOPIK HARI INI: ${topic}
+PLATFORM: ${platform}
+
+Buat konten yang direkayasa untuk performa maksimal di ${platform}. Hook harus bikin orang berhenti scroll dalam 3 detik. Body harus pakai struktur yang memaksimalkan completion rate. CTA harus mendorong save atau comment.
+
+${isShortForm ? 'Untuk TikTok/Shorts: hook harus sangat singkat dan visual. Body adalah script yang bisa dibacakan.' : ''}
+${isLinkedIn ? 'Untuk LinkedIn: lebih profesional, pakai format post yang terbukti viral di LinkedIn.' : ''}
+
+Return HANYA JSON valid:
+{
+  "hook": "hook 1-2 kalimat yang bikin stop scroll, boleh pakai angka/pertanyaan/statement mengejutkan",
+  "body": "body konten lengkap siap copy-paste, termasuk CTA di akhir",
+  "hashtags": ["#tag1","#tag2","#tag3","#tag4","#tag5","#tag6","#tag7"],
+  "best_time": "jam terbaik posting hari ini untuk ${platform} (format: HH:MM - HH:MM)",
+  "why_works": [
+    "alasan teknis kenapa hook ini efektif",
+    "alasan psikologis yang dipakai",
+    "strategi algoritma yang dioptimasi"
+  ]
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    const raw = data.content.map(i => i.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    currentResult = JSON.parse(clean);
+    currentResult.topic = topic;
+    currentResult.platform = platform;
+    currentResult.timestamp = Date.now();
+
+    renderResult(currentResult);
+    saveToHistory(currentResult);
+  } catch(e) {
+    showToast('Error, coba lagi ya!');
+    console.error(e);
+  }
+
+  clearInterval(phaseInterval);
+  clearInterval(countdownInterval);
+  document.getElementById('btn-gen').disabled = false;
+  document.getElementById('gen-state').classList.remove('visible');
+}
+
+function renderResult(r) {
+  document.getElementById('result-plat').textContent = r.platform.split(' ')[0].toUpperCase();
+  document.getElementById('result-time-label').textContent = new Date(r.timestamp).toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('result-hook').textContent = r.hook;
+  document.getElementById('result-body-text').textContent = r.body;
+
+  const hashEl = document.getElementById('result-hashtags');
+  hashEl.innerHTML = (r.hashtags || []).map(h => `<span class="hashtag">${h}</span>`).join('');
+
+  const whyEl = document.getElementById('result-why');
+  whyEl.innerHTML = (r.why_works || []).map(w => `<div class="why-item">${w}</div>`).join('');
+
+  document.getElementById('result-post-time').textContent = r.best_time || '18:00 - 21:00';
+
+  document.getElementById('result-card').classList.add('visible');
+  document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ============ COPY ============
+function copyContent() {
+  if (!currentResult) return;
+  const text = `${currentResult.hook}\n\n${currentResult.body}\n\n${(currentResult.hashtags || []).join(' ')}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '✓ Tersalin!';
+    btn.classList.add('copied');
+    showToast('Konten siap posting!');
+    setTimeout(() => { btn.textContent = 'Copy Konten'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ============ HISTORY ============
+async function saveToHistory(result) {
+  history.unshift({ topic: result.topic, platform: result.platform, timestamp: result.timestamp, hook: result.hook });
+  if (history.length > 10) history = history.slice(0, 10);
+  try {
+    await window.storage.set(HISTORY_KEY, JSON.stringify(history));
+  } catch(e) {}
+  renderHistory();
+}
+
+function renderHistory() {
+  if (!history.length) return;
+  const section = document.getElementById('history-section');
+  const list = document.getElementById('history-list');
+  section.style.display = 'block';
+  list.innerHTML = history.slice(0, 5).map(h => `
+    <div class="history-item">
+      <div>
+        <div class="h-topic">${h.topic}</div>
+        <div class="h-meta">${new Date(h.timestamp).toLocaleDateString('id-ID', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <div class="h-plat">${(h.platform || '').split(' ')[0]}</div>
+    </div>
+  `).join('');
+}
+
+// ============ RESET ============
+async function confirmReset() {
+  if (confirm('Reset Brand DNA? Kamu perlu isi ulang dari awal.')) {
+    try {
+      await window.storage.delete(STORAGE_KEY);
+      await window.storage.delete(HISTORY_KEY);
+    } catch(e) {}
+    brandDNA = null;
+    history = [];
+    selectedTones = [];
+    selectedPlatforms = [];
+    currentStep = 1;
+    document.querySelectorAll('.onboard-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-1').classList.add('active');
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+    document.getElementById('ob-name').value = '';
+    document.getElementById('ob-product').value = '';
+    document.getElementById('ob-audience').value = '';
+    showScreen('onboard');
+  }
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============ START ============
+init();
+</script>
+</body>
+</html>
